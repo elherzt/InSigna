@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InSigna.JWTSevrice
+namespace InSigna.JWTService
 {
     public static class JWTAuthConfig
     {

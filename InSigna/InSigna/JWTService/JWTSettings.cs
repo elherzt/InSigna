@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InSigna.JWTSevrice
+namespace InSigna.JWTService
 {
     /// <summary>
     /// Class representing the configuration settings for JWT (JSON Web Token).

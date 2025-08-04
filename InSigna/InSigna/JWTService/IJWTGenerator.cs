@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using InSigna.Enums;
 
-namespace InSigna.JWTSevrice
+namespace InSigna.JWTService
 {
     public interface IJWTGenerator
     {
