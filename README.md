@@ -1,6 +1,8 @@
 # InSigna – Secure and Reusable Auth Core for .NET 8
 
-![Insigna Logo](assets/InsignaLogo.png)
+<p align="center">
+  <img src="assets/InsignaLogo.png" alt="InSigna Logo" width="220"/>
+</p>
 
 InSigna is a lightweight authentication library built for backend projects that need clean password hashing and JWT generation.
 
