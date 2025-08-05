@@ -37,11 +37,12 @@ namespace InSigna.JWTService
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                    new Claim(ClaimTypes.Name, model.Name),
-                    new Claim(ClaimTypes.NameIdentifier, model.UserId.ToString()),
-                    new Claim(ClaimTypes.Role, model.Role),
-                    new Claim("Provider", model.Provider)
+                        new Claim(ClaimTypes.Name, model.Name),
+                        new Claim(ClaimTypes.NameIdentifier, model.UserId.ToString()),
+                        new Claim(ClaimTypes.Role, model.Role),
+                        new Claim("Provider", model.Provider)
                     }),
+
                     NotBefore = now,
                     Expires = DateTime.UtcNow.AddMinutes(_jwtconfig.ExpirationMinutes),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

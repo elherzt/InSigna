@@ -16,6 +16,101 @@ Designed to be reusable, easy to set up, and free of domain-specific logic—thi
 
 Use InSigna when you want a simple and clean base for authentication that respects separation of concerns and scales as your project grows.
 
+## 🧪 Usage Guide
+
+Here’s how to integrate and use InSigna inside a .NET 8 backend project:
+
+### Setup DI
+
+Add this early in your `Program.cs` or inside a dedicated `Startup` logic:
+
+```csharp
+builder.Services.AddSingleton<IPasswordHasherService, PasswordHasherService>();
+builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JWTConfig"));
+builder.Services.AddScoped<IJWTGenerator, JWTGenerator>();
+AuthConfig.ConfigureJwt(builder.Services, builder.Configuration);
+
+
+
+```
+
+### Use in Code
+
+To get started with **InSigna** in your .NET 8 backend:
+
+1. **Register the services**: Inject `IJWTGenerator` and `IPasswordHasherService` using your DI container. Configure the JWT settings from your `appsettings.json` and call `AuthConfig.ConfigureJwt()` to set up the bearer authentication pipeline.
+
+2. **Inject into your controllers**: Add these services to your constructor so they're available for generating tokens and hashing passwords.
+
+3. **Use the helpers**:
+   - Call `.Encrypt(password)` to get a hashed version.
+   - Call `.VerifyPassword(hashed, input)` to compare inputs.
+   - Call `.GenerateToken(sessionModel)` to produce a signed JWT based on `BasicSessionModel`.
+
+Each method returns an `InSignaResponse` object with:
+
+- `.TypeOfResponse`: defines the nature of the outcome (`OK`, `FailedResponse`, `Exception`, `Timeout`, `NotFound`)
+- `.Data`: contains the result if successful (e.g. token, hashed password)
+- `.Message`: includes a readable explanation when an error or failure occurs
+
+This centralized response model ensures clean error handling and uniform feedback across your authentication logic.
+
+InSigna keeps your security stack modular, predictable, and easy to onboard.
+
+```csharp
+public class AccountController : ControllerBase
+{
+    private readonly IUserRepository _userRepository;
+    private readonly IJWTGenerator _jwtGenerator;
+    private readonly IPasswordHasherService _passwordHasherService;
+
+    public AccountController(IUserRepository userRepository, IJWTGenerator jWTGenerator, IPasswordHasherService hasher)
+    {
+        _userRepository = userRepository;
+        _jwtGenerator = jWTGenerator;
+        _passwordHasherService = hasher;
+    }
+
+    public InSignaResponse Login(UserLoginDTO user)
+    {
+        InSignaResponse response = new InSignaResponse();
+        UserDTO loggedUser = _userRepository.CheckUser(user);
+        BasicSessionModel sessionModel = new BasicSessionModel
+        {
+            UserId = loggedUser.Id,
+            Name = loggedUser.Name,
+            Email = loggedUser.Email,
+            Provider = loggedUser.Provider
+
+        };
+
+        InSignaResponse response = _jwtGenerator.GenerateToken(sessionModel);
+
+        // if response.TypeOfResponse = TypeOfResponse.OK response.Data contains the token, if not response.Message contains error message
+
+        return response;
+    }
+
+    public InSignaResponse Encrypt(string password)
+    {
+        InSignaResponse response = new InSignaResponse();
+        response = _passwordHasherService.HashPassword(password);
+        // if response.TypeOfResponse = TypeOfResponse.OK response.Data contains the hashed password, if not response.Message contains error message
+        return response;
+    }
+
+    public InSignaResponse VerifyPassword(string hashedPassword, string providedPassword)
+    {
+        InSignaResponse response = new InSignaResponse();
+        response = _passwordHasherService.VerifyPassword(hashedPassword, providedPassword);
+        // if response.TypeOfResponse = TypeOfResponse.OK passwords matches, if not, response.Message contains error message
+        return response;
+    }
+}
+
+```
+
+
 ## ⚙️ Tech Stack & Dependencies
 
 InSigna is built on top of modern, battle-tested technologies to offer robust authentication without unnecessary coupling:
